@@ -1,23 +1,29 @@
 # ziti-git
-A tool to manage multiple repositories with special considerations for the github.com/openziti project
+
+A tool to manage multiple repositories with special considerations for
+the github.com/openziti project
 
 ## Requirements
+
 - git >= 1.14
 
 ## Installation
+
 ```
 go get -u github.com/andrewpmartinez/ziti-git
 go install github.com/andrewpmartinez/ziti-git
 ```
 
 ## Alias to `zg`
+
 ```
 echo 'alias zg=$GOPATH/bin/ziti-git' >> ~/.bashrc
 ```
 
 ## Usage
+
 ```
-Ziti Git is a multi-repo git tool with additions for the open ziti project!
+Ziti Git is a multi-repository git tool with additions for the open ziti project!
 
 Usage:
   ziti-git [flags]
@@ -40,9 +46,13 @@ Flags:
 Use "ziti-git [command] --help" for more information about a command.
 ```
 
-## Getting Started
+## Cloning -- Getting Started With Ziti
 
-To start hacking away on Ziti first clone the repos:
+To start hacking away on Ziti first clone the `github.com/openziti/ziti`
+repositories. It is suggested to run the `ziti-git clone` command inside
+an empty directory as multiple directories will be created.
+
+Example:
 
 ```
 mkdir ziti
@@ -50,19 +60,39 @@ cd ziti
 ziti-git clone
 ```
 
-If you want to add these new repos to ziti-gits repo list use the `-r` flag
-and optionally the `-t` flag to set a specific tag.
+For easier management later, it is useful to register the cloned
+repositories with `ziti-git` and specify a tag. This will make it easier
+to manipulate them individually with the `-t` flag that is available on
+most `ziti-git` commands.
 
 ```
 mkdir ziti
 cd ziti
-ziti-git clone -r -t myTag
+ziti-git clone -r -t myZiti
 ```
+
+You can clone then build to get your own copy of Ziti built and ready
+for use:
+
+```
+mkdir myziti
+cd myziti
+ziti-git clone -r -t myZiti
+cd ziti
+go build ./...
+```
+
+The above will checkout the necessary Ziti repositories and then build
+the Ziti binaries. They will end up `~/go/bin` or to the environment
+variable path defined by `GOBIN` if set. The repository in the `ziti`
+folder will contain the `openziti/ziti` repository which holds the code
+that will build all of openziti's binaries.
 
 ## Table Status
 
-A tabular Git status can be displayed by using the `table-status` or `ts` command. The output
-can be limited by specifying a specific tag via `-t`.
+A tabular Git status can be displayed by using the `table-status` or
+`ts` command. The output can be limited by specifying a specific tag via
+`-t`.
 
 ```
 > ziti-git table-status
@@ -76,11 +106,11 @@ can be limited by specifying a specific tag via `-t`.
 +------------+--------------+----------+--------+----------+-------------------------------------------+
 ```
 
-## Fetching On All Repos
+## Fetching On All Repositories
 
-Arbitrary git command can be executed on the entire set of repos or
-sets defined by tags. In this example `git fetch` will be executed on
-all repos.
+Arbitrary `git` command can be executed on the entire set of
+repositories or sets defined by tags. In this example `git fetch` will
+be executed on all repositories.
 
 ```
 > ziti-git fetch
@@ -92,10 +122,10 @@ Or on a specific tag:
 > ziti-git -t myTag fetch
 ```
 
-This can also be used to create branches, checkout branches, hard
-reset, etc. across all repos.
+This can also be used to create branches, checkout branches, hard reset,
+etc. across all repositories.
 
-## Unregister Repo
+## Unregistering Repositories
 
 Repositories can be removed by location or by tag. To remove a specific
 repository by path:
@@ -105,6 +135,7 @@ repository by path:
 ```
 
 To remove all repositories with a specific tag:
+
 ```
 > ziti-git unregister-tag myTag
 ```
@@ -124,7 +155,8 @@ Most ziti-git commands have short aliases:
 
 ```
 
-Aliases can be found by use the `-h` flag on commands in the "Aliases" section:
+Aliases can be found by use the `-h` flag on commands in the "Aliases"
+section:
 
 ```
 > ziti-git register -h
@@ -143,8 +175,109 @@ Global Flags:
   -t, --tag string   limits actions to repos with <tag>
 ```
 
+## Using Local -- Local Development
+
+By default, building against the `openziti/ziti` repository folder
+`ziti` will use its `go.mod` file to look up the correct versions to
+build. If you would like to use only the locally checked out versions
+(useful for developing locally) the `ziti-git use-local` command is
+useful to update the `go.mod` file to add `replace` directives to use
+your locally checked out versions.
+
+The command makes the following assumptions:
+
+- it is being run in the directory containing the `openziti/*`
+  repositories
+- it assumes that the `ziti`, `foundation`, `edge`, and `fabric` folders
+  are siblings in said folder
+
+```
+> ziti-git use-local
+```
+
+Using the `use-local` command will alter the `go.mod` file across some
+or all of the repositories mentioned above (depending on usage).
+Committing modified `go.mod` files with `replace` directives is
+generally not advised unless it is for your own personal use.
+
+To reverse this process use:
+
+```
+> ziti-git use-local --undo
+```
+
+To limit the scope of `use-local` the `-here` flag can be used within a
+specific repository folder to alter only the `go.mod` folder of that
+repository.
+
+```
+> cd edge
+> ziti-git use-local --here
+```
+
+`-here` can also be combined with `-undo` to limit the undo to only the
+current repository.
+
+```
+> cd edge
+> ziti-git use-local --here
+> ziti-git use-local --here --undo
+```
+
+Specific repositories can also be swapped to use the locally checked out
+versions by specifying them via the `--repo` flag.
+
+The following would only use the local `edge` repository.
+
+```
+> ziti-git use-local --repo edge
+```
+
+The `--repo` flag can also be combined with `--here` and `--undo`
+
+### Checking Out Exact Matching Versions
+
+When debugging issues or recreating historical versions, it is useful to
+checkout the exact repository commits that were used to build a specific
+version. The `ziti-git checkout` command can do that for your.
+
+If you wish to checkout the commits used to build the `v0.16.0` of Ziti,
+you can do the following:
+
+```
+> mkdir ziti-0.16.0
+> cd ziti-0.16.0
+> ziti-git clone -r -t v0.16.0
+> cd ziti
+> git checkout v0.16.0
+> cd ..
+> ziti-git checkout
+```
+
+This will:
+
+1. create a new folder
+2. clone the openziti repositories
+3. checkout the v0.16.0 version of `ziti`
+4. ensure the `fabric`, `edge`, `foundation` repositories match the
+   versions specified in `ziti/go.mod`
+
+After that the `use-local` command can be used to work on that specific
+version of the openziti project. Potentially to work on bug fix!
+
+These repositories can then later be removed from `ziti-git` as the
+`v0.16.0` tag was used when they were cloned and registered.
+
+```
+> ziti-git unregister-tag v0.16.0
+> rm -rf ./ziti-0.16.0/*
+```
 
 ## Acknowledgements
-Ziti Git is based off of [gmg](https://github.com/abrochard/go-many-git) which in turn was inspired by the amazing [mr](https://myrepos.branchable.com) and [gr](https://github.com/mixu/gr) tools.
+
+Ziti Git is based off of [gmg](https://github.com/abrochard/go-many-git)
+which in turn was inspired by the amazing
+[mr](https://myrepos.branchable.com) and
+[gr](https://github.com/mixu/gr) tools.
 
 A big thanks to all.
