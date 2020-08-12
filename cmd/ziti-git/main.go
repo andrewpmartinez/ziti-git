@@ -13,7 +13,7 @@ var rootCmd *cobra.Command
 
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		os.Stderr.WriteString(err.Error())
+		_, _ = os.Stderr.WriteString(err.Error())
 		os.Exit(1)
 	}
 }
@@ -86,6 +86,24 @@ func init() {
 		},
 	}
 
+	unregisterTagCmd := &cobra.Command{
+		Use:     "unregister-tag <tag>",
+		Aliases: []string{"ut"},
+		Short:   "unregister-tag <tag>",
+		Args:    cobra.ExactArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			checkRepos(repos)
+			tag := args[0]
+
+			for _, repo := range repos {
+				if repo.Tag == tag {
+					println("...unregister: " + repo.Location)
+					zg.UnregisterRepo(repo.Location, zg.GetRepos())
+				}
+			}
+		},
+	}
+
 	listCmd := &cobra.Command{
 		Use:     "list [-t <tag>]",
 		Aliases: []string{"l"},
@@ -114,18 +132,20 @@ func init() {
 	}
 
 	clone := &cobra.Command{
-		Use:   "clone",
+		Use:   "clone [-t <tag>] [-r]",
+		Aliases: []string{"c"},
 		Short: "clones the core openziti repos to the current directory",
-		Args:  cobra.NoArgs,
-		Run: func(_ *cobra.Command, _ []string) {
+		Run: func(cmd *cobra.Command, _ []string) {
 
-			for _, repo := range []string{
-				"git@github.com:openziti/edge.git",
-				"git@github.com:openziti/fabric.git",
-				"git@github.com:openziti/foundation.git",
-				"git@github.com:openziti/ziti.git",
-				"git@github.com:openziti/sdk-golang.git",
+			for dir, repo := range map[string]string{
+				"edge":       "git@github.com:openziti/edge.git",
+				"fabric":     "git@github.com:openziti/fabric.git",
+				"foundation": "git@github.com:openziti/foundation.git",
+				"ziti":       "git@github.com:openziti/ziti.git",
+				"sdk-golang": "git@github.com:openziti/sdk-golang.git",
 			} {
+				tag := rootCmd.Flag(FlagTag).Value.String()
+
 				color.Cyan("Cloning: %s", repo)
 				stdout, stderr, err := zg.Exec("git", "clone", repo)
 
@@ -139,14 +159,21 @@ func init() {
 
 				if stderr != nil && stderr.Len() != 0 {
 					_, _ = color.Error.Write(stderr.Bytes())
-					continue
+				}
+				if stdout != nil && stdout.Len() != 0 {
+					println(stdout.Bytes())
 				}
 
-				println(stdout.Bytes())
+				if cmd.Flag("register").Value.String() == "true" {
+					repoPath, _ := filepath.Abs(filepath.Join(".", dir))
+					fmt.Printf("...registering as %s -> %s\n", tag, repoPath)
+					zg.RegisterRepo(repoPath, tag, zg.GetRepos())
+				}
 			}
-
 		},
 	}
+
+	clone.Flags().BoolP("register", "r", false, "add cloned repos to ziti-git under <tag> if specified")
 
 	rootCmd.AddCommand(registerCmd)
 	rootCmd.AddCommand(tableStatusCmd)
@@ -154,6 +181,7 @@ func init() {
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(branchCmd)
 	rootCmd.AddCommand(clone)
+	rootCmd.AddCommand(unregisterTagCmd)
 }
 
 func checkRepos(repos []zg.Repo) {
