@@ -20,6 +20,57 @@ go install github.com/andrewpmartinez/ziti-git
 echo 'alias zg=$GOPATH/bin/ziti-git' >> ~/.bashrc
 ```
 
+## Aliases
+
+Most ziti-git commands have short aliases. Setting up `ziti-git` as the
+alias `zg` and using the command aliases can shorten the typing
+necessary for repetitive tasks.
+
+#### Example w/o aliases:
+
+```
+> ziti-git table-status
+```
+
+#### Example w/ aliases:
+
+```
+> zg ts
+```
+
+Here is a list of some of the aliases:
+
+```
+  b  = branch 
+  c  = clone
+  l  = list
+  r  = register
+  ts = table-status
+  u  = unregister
+  ut = unregister-tag
+```
+
+Aliases can be found by use the `-h` flag on commands in the "Aliases"
+section:
+
+```
+> ziti-git register -h
+add the repo in <path> to the list of repos, with an optional <tag>
+
+Usage:
+  ziti-git register [-t <tag>] <path> [flags]
+
+Aliases:
+  register, r
+
+Flags:
+  -h, --help   help for register
+
+Global Flags:
+  -t, --tag string   limits actions to repos with <tag>
+```
+
+
 ## Usage
 
 ```
@@ -140,41 +191,6 @@ To remove all repositories with a specific tag:
 > ziti-git unregister-tag myTag
 ```
 
-## Aliases
-
-Most ziti-git commands have short aliases:
-
-```
-  b  = branch 
-  c  = clone
-  l  = list
-  r  = register
-  ts = table-status
-  u  = unregister
-  ut = unregister-tag
-
-```
-
-Aliases can be found by use the `-h` flag on commands in the "Aliases"
-section:
-
-```
-> ziti-git register -h
-add the repo in <path> to the list of repos, with an optional <tag>
-
-Usage:
-  ziti-git register [-t <tag>] <path> [flags]
-
-Aliases:
-  register, r
-
-Flags:
-  -h, --help   help for register
-
-Global Flags:
-  -t, --tag string   limits actions to repos with <tag>
-```
-
 ## Using Local -- Local Development
 
 By default, building against the `openziti/ziti` repository folder
@@ -239,7 +255,7 @@ The `--repo` flag can also be combined with `--here` and `--undo`
 
 When debugging issues or recreating historical versions, it is useful to
 checkout the exact repository commits that were used to build a specific
-version. The `ziti-git checkout` command can do that for your.
+version. The `ziti-git checkout` command can do that for you.
 
 If you wish to checkout the commits used to build the `v0.16.0` of Ziti,
 you can do the following:
@@ -263,10 +279,11 @@ This will:
    versions specified in `ziti/go.mod`
 
 After that the `use-local` command can be used to work on that specific
-version of the openziti project. Potentially to work on bug fix!
+version of the openziti project - potentially to work on bug fix!
 
 These repositories can then later be removed from `ziti-git` as the
-`v0.16.0` tag was used when they were cloned and registered.
+`v0.16.0` tag was used when they were cloned and registered during
+the `clone` command (i.e. `-r -t v0.16.0`)
 
 ```
 > ziti-git unregister-tag v0.16.0
