@@ -146,31 +146,7 @@ func PrintRepos(tag string, repos []Repo) {
 	}
 }
 
-// Print help message
-func PrintHelp() {
-	fmt.Println("Usage: ziti-git [@tag] <command> [<args>]")
-	fmt.Println("")
-	fmt.Println("ziti-git basic usage is to run a particular git command across multiple repos")
-	fmt.Println("For example, 'ziti-git pull' runs 'git pull' across all registered repos")
-	fmt.Println("By default 'ziti-git' alone runs 'git status'")
-	fmt.Println("")
-	fmt.Println("Optionally, a repos can be identified by a shared tag (@example), making it possible to target a subset of repos")
-	fmt.Println("ie: `ziti-git @api pull` runs `git pull` on all repos tagged with `api`")
-	fmt.Println("")
-	fmt.Println("Arbitrary non-git commands can be run by using the -exec flag")
-	fmt.Println("")
-	fmt.Println("ziti-git accepts all git commands, but here are a few ziti-git specific commands:")
-	fmt.Println("")
-	fmt.Println("   [@tag] register <path>    Add the repo in <path> to the list of repos, with an optional tag")
-	fmt.Println("   unregister <path>         Remove the repo in <path> from the list")
-	fmt.Println("   [@tag] -table-status      Will output the name, branch, and status of each repo in a table")
-	fmt.Println("   [@tag] b                  Shorthand to display the repos current branch")
-	fmt.Println("   [@tag] -exec ls           Execute non-git command ls on each repo")
-	fmt.Println("   list                      Print all registered repos")
-	fmt.Println("   help                      Print this help")
-	fmt.Println("")
-	fmt.Println("See README.md for more details")
-}
+
 
 // Check for valid tag
 func ValidTag(str string) bool {
