@@ -10,12 +10,16 @@ import (
 
 var rootCmd *cobra.Command
 
-
 func main() {
 	if err := rootCmd.Execute(); err != nil {
-		panic(err)
+		os.Stderr.WriteString(err.Error())
+		os.Exit(1)
 	}
 }
+
+const (
+	FlagTag = "tag"
+)
 
 func init() {
 	zg.SetConfigFilePath()
@@ -24,42 +28,48 @@ func init() {
 	rootCmd = &cobra.Command{
 		Use:   "ziti-git",
 		Short: "Ziti Git is a multi-repo git tool with additions for the open ziti project!",
-	}
-
-	registerCmd := &cobra.Command{
-		Use:     "register <tag> <path>",
-		Aliases: []string{"r"},
-		Short:   "add the repo in <path> to the list of repos, with an optional <tag>",
-		Args:    cobra.MinimumNArgs(1),
+		Args:  cobra.MinimumNArgs(1),
 		Run: func(cmd *cobra.Command, args []string) {
-			tag := ""
-			path := ""
-			if len(args) > 1 {
-				tag = args[0]
-				path = args[1]
-			} else {
-				path = args[0]
+			tag := rootCmd.Flag(FlagTag).Value.String()
+
+			passArgs := os.Args[1:]
+
+			if tag != "" {
+				passArgs = os.Args[3:]
 			}
 
+			zg.RunCmd(repos, tag, passArgs...)
+		},
+		FParseErrWhitelist: cobra.FParseErrWhitelist{
+			UnknownFlags: true,
+		},
+	}
+
+
+
+	rootCmd.PersistentFlags().StringP(FlagTag, "t", "", "limits actions to repos with <tag>")
+
+	registerCmd := &cobra.Command{
+		Use:     "register [-t <tag>] <path>",
+		Aliases: []string{"r"},
+		Short:   "add the repo in <path> to the list of repos, with an optional <tag>",
+		Args:    cobra.MaximumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			tag := rootCmd.Flag(FlagTag).Value.String()
+			path := args[0]
 			path, _ = filepath.Abs(path)
 			zg.RegisterRepo(path, tag, repos)
 		},
 	}
 
 	tableStatusCmd := &cobra.Command{
-		Use:     "table-status [<tag>]",
+		Use:     "table-status [-t <tag>]",
 		Aliases: []string{"ts"},
 		Short:   "show the table status of all the repos or of a specific tag",
-		Args:    cobra.MaximumNArgs(1),
+		Args:    cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			checkRepos(repos)
-
-			tag := ""
-
-			if len(args) > 0 {
-				tag = args[0]
-			}
-
+			tag := rootCmd.Flag(FlagTag).Value.String()
 			zg.TableStatus(repos, tag)
 		},
 	}
@@ -78,36 +88,27 @@ func init() {
 	}
 
 	listCmd := &cobra.Command{
-		Use:     "list [<tag>]",
+		Use:     "list [-t <tag>]",
 		Aliases: []string{"l"},
 		Short:   "list all repos or repos for <tag>",
-		Args:    cobra.MaximumNArgs(1),
+		Args:    cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			checkRepos(repos)
 
-			tag := ""
-
-			if len(args) > 0 {
-				tag = args[0]
-			}
+			tag := rootCmd.Flag(FlagTag).Value.String()
 
 			zg.PrintRepos(tag, repos)
 		},
 	}
 
 	branchCmd := &cobra.Command{
-		Use:     "branch [<tag>]",
+		Use:     "branch [-t <tag>]",
 		Aliases: []string{"b"},
 		Short:   "list all repo branches or repos in <tag>",
-		Args:    cobra.MaximumNArgs(1),
+		Args:    cobra.NoArgs,
 		Run: func(cmd *cobra.Command, args []string) {
 			checkRepos(repos)
-
-			tag := ""
-
-			if len(args) > 0 {
-				tag = args[0]
-			}
+			tag := rootCmd.Flag(FlagTag).Value.String()
 
 			zg.PrintRepos(tag, repos)
 		},
