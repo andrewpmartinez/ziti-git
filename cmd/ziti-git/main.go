@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/andrewpmartinez/ziti-git/zg"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
@@ -44,8 +45,6 @@ func init() {
 			UnknownFlags: true,
 		},
 	}
-
-
 
 	rootCmd.PersistentFlags().StringP(FlagTag, "t", "", "limits actions to repos with <tag>")
 
@@ -114,12 +113,47 @@ func init() {
 		},
 	}
 
+	clone := &cobra.Command{
+		Use:   "clone",
+		Short: "clones the core openziti repos to the current directory",
+		Args:  cobra.NoArgs,
+		Run: func(_ *cobra.Command, _ []string) {
+
+			for _, repo := range []string{
+				"git@github.com:openziti/edge.git",
+				"git@github.com:openziti/fabric.git",
+				"git@github.com:openziti/foundation.git",
+				"git@github.com:openziti/ziti.git",
+				"git@github.com:openziti/sdk-golang.git",
+			} {
+				color.Cyan("Cloning: %s", repo)
+				stdout, stderr, err := zg.Exec("git", "clone", repo)
+
+				if err != nil {
+					_, _ = color.Error.Write([]byte(err.Error()))
+					if stderr != nil && stderr.Len() != 0 {
+						_, _ = color.Error.Write(stderr.Bytes())
+					}
+					continue
+				}
+
+				if stderr != nil && stderr.Len() != 0 {
+					_, _ = color.Error.Write(stderr.Bytes())
+					continue
+				}
+
+				println(stdout.Bytes())
+			}
+
+		},
+	}
+
 	rootCmd.AddCommand(registerCmd)
 	rootCmd.AddCommand(tableStatusCmd)
 	rootCmd.AddCommand(unregisterCmd)
 	rootCmd.AddCommand(listCmd)
 	rootCmd.AddCommand(branchCmd)
-
+	rootCmd.AddCommand(clone)
 }
 
 func checkRepos(repos []zg.Repo) {

@@ -76,6 +76,18 @@ func saveRepos(repos []Repo) {
 	check(err, "Failed to save repos to config file")
 }
 
+func Exec(binary string, params ...string) (*bytes.Buffer, *bytes.Buffer, error) {
+	cmd := exec.Command(binary, params...)
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	err := cmd.Run()
+
+	return &out, &stderr, err
+}
+
 // Run a git command across all repos with matching tag
 func RunCmd(repos []Repo, tag string, args ...string) {
 	for _, r := range repos {
@@ -145,8 +157,6 @@ func PrintRepos(tag string, repos []Repo) {
 		}
 	}
 }
-
-
 
 // Check for valid tag
 func ValidTag(str string) bool {
