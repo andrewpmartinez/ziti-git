@@ -186,6 +186,15 @@ func init() {
 	uselocalCmd.Flags().BoolP("undo", "u", false, "alter go.mod files to not use local repositories, may be combined with -h")
 	uselocalCmd.Flags().StringArrayP("repos", "r", []string{`github\.com/openziti/.*`}, "alter specific replace directives by repository URL regexp, may be specified multiple times")
 
+	checkoutCmd := &cobra.Command{
+		Use:     "checkout",
+		Aliases: []string{"co"},
+		Short:   "inspects the go.mod file of the openziti/ziti repo to produce a script to checkout exact openziti dependencies necessary",
+		Run: func(cmd *cobra.Command, args []string) {
+			//does nothing yet
+		},
+	}
+
 	clone := &cobra.Command{
 		Use:     "clone [-t <tag>] [-r]",
 		Aliases: []string{"c"},
@@ -238,6 +247,7 @@ func init() {
 	rootCmd.AddCommand(clone)
 	rootCmd.AddCommand(unregisterTagCmd)
 	rootCmd.AddCommand(uselocalCmd)
+	rootCmd.AddCommand(checkoutCmd)
 }
 
 func checkRepos(repos []zg.Repo) {

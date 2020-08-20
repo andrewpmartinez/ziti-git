@@ -48,6 +48,7 @@ Here is a list of some of the aliases:
   ts = table-status
   u  = unregister
   ut = unregister-tag
+  ul = use-local
 ```
 
 Aliases can be found by use the `-h` flag on commands in the "Aliases"
@@ -74,7 +75,7 @@ Global Flags:
 ## Usage
 
 ```
-Ziti Git is a multi-repository git tool with additions for the open ziti project!
+Ziti Git is a multi-repo git tool with additions for the open ziti project!
 
 Usage:
   ziti-git [flags]
@@ -82,6 +83,7 @@ Usage:
 
 Available Commands:
   branch         list all repo branches or repos in <tag>
+  checkout       inspects the go.mod file of the openziti/ziti repo to produce a script to checkout exact openziti dependencies necessary
   clone          clones the core openziti repos to the current directory
   help           Help about any command
   list           list all repos or repos for <tag>
@@ -89,6 +91,7 @@ Available Commands:
   table-status   show the table status of all the repos or of a specific tag
   unregister     unregister <repo>
   unregister-tag unregister-tag <tag>
+  use-local      alter go.mod files for ziti repos to use local repositories via replace directives
 
 Flags:
   -h, --help         help for ziti-git
@@ -228,7 +231,7 @@ repository.
 
 ```
 > cd edge
-> ziti-git use-local --here
+> ziti-git use-local --current
 ```
 
 `-here` can also be combined with `-undo` to limit the undo to only the
@@ -236,8 +239,8 @@ current repository.
 
 ```
 > cd edge
-> ziti-git use-local --here
-> ziti-git use-local --here --undo
+> ziti-git use-local --current
+> ziti-git use-local --current --undo
 ```
 
 Specific repositories can also be swapped to use the locally checked out
@@ -246,10 +249,15 @@ versions by specifying them via the `--repo` flag.
 The following would only use the local `edge` repository.
 
 ```
-> ziti-git use-local --repo edge
+> ziti-git use-local --repo .*?edge.*?
 ```
 
-The `--repo` flag can also be combined with `--here` and `--undo`
+Note that the repo flag treats the input as a regular expression. If
+your shell requires escape characters (i.e. bash and `\`) those must
+be applied on top of any regular expression escaping necessary.
+
+The `--repo` flag can also be combined with `--current` and `--undo`. It
+may also be specified multiple times.
 
 ### Checking Out Exact Matching Versions
 
@@ -290,7 +298,7 @@ the `clone` command (i.e. `-r -t v0.16.0`)
 > rm -rf ./ziti-0.16.0/*
 ```
 
-## Acknowledgements
+## Prior Art
 
 Ziti Git is based off of [gmg](https://github.com/abrochard/go-many-git)
 which in turn was inspired by the amazing
