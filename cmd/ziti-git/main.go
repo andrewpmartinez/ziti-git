@@ -5,8 +5,10 @@ import (
 	"github.com/andrewpmartinez/ziti-git/zg"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var rootCmd *cobra.Command
@@ -131,10 +133,63 @@ func init() {
 		},
 	}
 
+	uselocalCmd := &cobra.Command{
+		Use:     "use-local [-hu] [-r <repos>]",
+		Aliases: []string{"ul"},
+		Short:   "alter go.mod files for ziti repos to use local repositories via replace directives",
+		Args:    cobra.NoArgs,
+		Run: func(cmd *cobra.Command, args []string) {
+			workOnCurrent, _ := cmd.Flags().GetBool("current")
+			undo, _ := cmd.Flags().GetBool("undo")
+			reposToReplace, _ := cmd.Flags().GetStringArray("repos")
+
+			workingDir, _ := os.Getwd()
+			var repoDirs []string
+
+			//fill repoDirs with directories to work on
+			if workOnCurrent {
+				repoDirs = append(repoDirs, workingDir)
+			} else {
+				allDirs, err := ioutil.ReadDir(workingDir)
+
+				if err != nil {
+					formattedErrorExit("Could not read working directory: %v", err)
+				}
+
+				for _, dir := range allDirs {
+					if dir.IsDir() && !strings.HasPrefix(".", dir.Name()) {
+						path := filepath.Join(workingDir, dir.Name())
+						if zg.IsPathGitRepo(path) {
+							repoDirs = append(repoDirs, path)
+						}
+					}
+				}
+			}
+
+			for _, repoDir := range repoDirs {
+				if undo {
+					fmt.Printf("disabling replacements on: %s\n", repoDir)
+					if err := zg.DisableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
+						formattedErrorExit("Could not disable go mod replacements in [%s]: %v", repoDir, err)
+					}
+				} else {
+					fmt.Printf("enabling replacements on: %s\n", repoDir)
+					if err := zg.EnableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
+						formattedErrorExit("Could not enable go mod replacements in [%s]: %v", repoDir, err)
+					}
+				}
+			}
+		},
+	}
+
+	uselocalCmd.Flags().BoolP("current", "c", false, "only alter the current repository, must be in a git repository folder")
+	uselocalCmd.Flags().BoolP("undo", "u", false, "alter go.mod files to not use local repositories, may be combined with -h")
+	uselocalCmd.Flags().StringArrayP("repos", "r", []string{`github\.com/openziti/.*`}, "alter specific replace directives by repository URL regexp, may be specified multiple times")
+
 	clone := &cobra.Command{
-		Use:   "clone [-t <tag>] [-r]",
+		Use:     "clone [-t <tag>] [-r]",
 		Aliases: []string{"c"},
-		Short: "clones the core openziti repos to the current directory",
+		Short:   "clones the core openziti repos to the current directory",
 		Run: func(cmd *cobra.Command, _ []string) {
 
 			for dir, repo := range map[string]string{
@@ -182,6 +237,7 @@ func init() {
 	rootCmd.AddCommand(branchCmd)
 	rootCmd.AddCommand(clone)
 	rootCmd.AddCommand(unregisterTagCmd)
+	rootCmd.AddCommand(uselocalCmd)
 }
 
 func checkRepos(repos []zg.Repo) {
@@ -191,4 +247,14 @@ func checkRepos(repos []zg.Repo) {
 		fmt.Println("ziti-git register [path]")
 		os.Exit(0)
 	}
+}
+
+func errorExitWithCode(msg string, exitCode int) {
+	_, _ = os.Stderr.WriteString(msg + "\n")
+	os.Exit(exitCode)
+}
+
+func formattedErrorExit(msg string, formatArgs ...interface{}) {
+	msg = fmt.Sprintf(msg, formatArgs)
+	errorExitWithCode(msg, 1)
 }
