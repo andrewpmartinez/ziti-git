@@ -253,8 +253,8 @@ The following would only use the local `edge` repository.
 ```
 
 Note that the repo flag treats the input as a regular expression. If
-your shell requires escape characters (i.e. bash and `\`) those must
-be applied on top of any regular expression escaping necessary.
+your shell requires escape characters (i.e. bash and `\`) those must be
+applied on top of any regular expression escaping necessary.
 
 The `--repo` flag can also be combined with `--current` and `--undo`. It
 may also be specified multiple times.
@@ -274,24 +274,26 @@ you can do the following:
 > ziti-git clone -r -t v0.16.0
 > cd ziti
 > git checkout v0.16.0
-> cd ..
 > ziti-git checkout
 ```
 
-This will:
+Would output:
 
-1. create a new folder
-2. clone the openziti repositories
-3. checkout the v0.16.0 version of `ziti`
-4. ensure the `fabric`, `edge`, `foundation` repositories match the
-   versions specified in `ziti/go.mod`
+```
+cd "/home/user/repos/ziti-0.16.0"
+git -C "./edge" checkout v0.15.40
+git -C "./fabric" checkout v0.12.1
+git -C "./foundation" checkout v0.12.0
+git -C "./sdk-golang" checkout v0.13.30
+```
 
-After that the `use-local` command can be used to work on that specific
-version of the openziti project - potentially to work on bug fix!
+That output can be executed to checkout the proper versions. After that
+the `use-local` command can be used to work on that specific version of
+the openziti project - potentially to work on bug fix!
 
 These repositories can then later be removed from `ziti-git` as the
-`v0.16.0` tag was used when they were cloned and registered during
-the `clone` command (i.e. `-r -t v0.16.0`)
+`v0.16.0` tag was used when they were cloned and registered during the
+`clone` command (i.e. `-r -t v0.16.0`)
 
 ```
 > ziti-git unregister-tag v0.16.0
