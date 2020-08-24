@@ -225,7 +225,7 @@ To reverse this process use:
 > ziti-git use-local --undo
 ```
 
-To limit the scope of `use-local` the `-here` flag can be used within a
+To limit the scope of `use-local` the `--current` flag can be used within a
 specific repository folder to alter only the `go.mod` folder of that
 repository.
 
@@ -234,7 +234,7 @@ repository.
 > ziti-git use-local --current
 ```
 
-`-here` can also be combined with `-undo` to limit the undo to only the
+`--current` can also be combined with `--undo` to limit the undo to only the
 current repository.
 
 ```
