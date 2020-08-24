@@ -102,3 +102,13 @@ func EnableGoModReplaceDirectives(repoDir string, reposToReplace []string) error
 
 	return nil
 }
+
+func HasGoModFile(repoDir string) bool {
+	goModPath := filepath.Join(repoDir, "go.mod")
+
+	info, err := os.Stat(goModPath)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}

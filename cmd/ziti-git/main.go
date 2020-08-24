@@ -167,15 +167,18 @@ func init() {
 			}
 
 			for _, repoDir := range repoDirs {
-				if undo {
-					fmt.Printf("disabling replacements on: %s\n", repoDir)
-					if err := zg.DisableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
-						formattedErrorExit("Could not disable go mod replacements in [%s]: %v", repoDir, err)
-					}
-				} else {
-					fmt.Printf("enabling replacements on: %s\n", repoDir)
-					if err := zg.EnableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
-						formattedErrorExit("Could not enable go mod replacements in [%s]: %v", repoDir, err)
+
+				if zg.HasGoModFile(repoDir) {
+					if undo {
+						fmt.Printf("disabling replacements on: %s\n", repoDir)
+						if err := zg.DisableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
+							formattedErrorExit("Could not disable go mod replacements in [%s]: %v", repoDir, err)
+						}
+					} else {
+						fmt.Printf("enabling replacements on: %s\n", repoDir)
+						if err := zg.EnableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
+							formattedErrorExit("Could not enable go mod replacements in [%s]: %v", repoDir, err)
+						}
 					}
 				}
 			}
