@@ -24,6 +24,21 @@ const (
 	FlagTag = "tag"
 )
 
+var ZitiRepos = map[string]string{
+	"edge":       "git@github.com:openziti/edge.git",
+	"fabric":     "git@github.com:openziti/fabric.git",
+	"foundation": "git@github.com:openziti/foundation.git",
+	"ziti":       "git@github.com:openziti/ziti.git",
+	"sdk-golang": "git@github.com:openziti/sdk-golang.git",
+}
+
+var ZitiModules = map[string]string{
+	"github.com/openziti/edge":       "edge",
+	"github.com/openziti/fabric":     "fabric",
+	"github.com/openziti/foundation": "foundation",
+	"github.com/openziti/sdk-golang": "sdk-golang",
+}
+
 func init() {
 	zg.SetConfigFilePath()
 	repos := zg.GetRepos()
@@ -194,7 +209,25 @@ func init() {
 		Aliases: []string{"co"},
 		Short:   "inspects the go.mod file of the openziti/ziti repo to produce a script to checkout exact openziti dependencies necessary",
 		Run: func(cmd *cobra.Command, args []string) {
-			//does nothing yet
+			repoDir, _ := os.Getwd()
+
+			if !zg.IsPathGitRepo(repoDir) {
+				formattedErrorExit("current directory is not a git repo [%s]", repoDir)
+			}
+
+			info, err := zg.GetGoModInfo(repoDir)
+
+			if err != nil {
+				formattedErrorExit("could not get go mod info for repo [%s]: %v", repoDir, err)
+			}
+			script := "\n"
+			for _, require := range info.Require {
+				if dirName, found := ZitiModules[require.Mod.Path]; found {
+					script += fmt.Sprintf(`git checkout -C "%s" %s`, "../"+dirName, require.Mod.Version) + "\n"
+				}
+			}
+
+			println(script)
 		},
 	}
 
@@ -204,13 +237,7 @@ func init() {
 		Short:   "clones the core openziti repos to the current directory",
 		Run: func(cmd *cobra.Command, _ []string) {
 
-			for dir, repo := range map[string]string{
-				"edge":       "git@github.com:openziti/edge.git",
-				"fabric":     "git@github.com:openziti/fabric.git",
-				"foundation": "git@github.com:openziti/foundation.git",
-				"ziti":       "git@github.com:openziti/ziti.git",
-				"sdk-golang": "git@github.com:openziti/sdk-golang.git",
-			} {
+			for dir, repo := range ZitiRepos {
 				tag := rootCmd.Flag(FlagTag).Value.String()
 
 				color.Cyan("Cloning: %s", repo)
