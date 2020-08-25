@@ -163,6 +163,10 @@ func init() {
 
 			//fill repoDirs with directories to work on
 			if workOnCurrent {
+				if !zg.IsPathGitRepo(workingDir) {
+					formattedErrorExit("the current directory is not a Git repository [%s]", workingDir)
+				}
+
 				repoDirs = append(repoDirs, workingDir)
 			} else {
 				allDirs, err := ioutil.ReadDir(workingDir)
@@ -178,6 +182,10 @@ func init() {
 							repoDirs = append(repoDirs, path)
 						}
 					}
+				}
+
+				if len(repoDirs) == 0 {
+					formattedErrorExit("the current directory doesn't appear to have any git repositories [%s]", workingDir)
 				}
 			}
 
@@ -299,11 +307,11 @@ func checkRepos(repos []zg.Repo) {
 }
 
 func errorExitWithCode(msg string, exitCode int) {
-	_, _ = os.Stderr.WriteString(msg + "\n")
+	_, _ = os.Stderr.WriteString("error: " + msg + "\n")
 	os.Exit(exitCode)
 }
 
 func formattedErrorExit(msg string, formatArgs ...interface{}) {
-	msg = fmt.Sprintf(msg, formatArgs)
+	msg = fmt.Sprintf(msg, formatArgs...)
 	errorExitWithCode(msg, 1)
 }
