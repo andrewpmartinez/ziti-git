@@ -204,7 +204,7 @@ func init() {
 	}
 	branchCmd.Flags().StringP(FlagTag, "t", "", "limits actions to repos with <tag>")
 
-	uselocalCmd := &cobra.Command{
+	useLocalCmd := &cobra.Command{
 		Use:     "use-local [-hu] [-r <repos>]",
 		Aliases: []string{"ul"},
 		Short:   "alter go.mod files for ziti repos to use local repositories via replace directives",
@@ -225,6 +225,18 @@ func init() {
 
 				repoDirs = append(repoDirs, workingDir)
 			} else {
+
+				if zg.IsPathGitRepo(workingDir) {
+					var err error
+					workingDir, err = filepath.Abs(workingDir + string(os.PathSeparator) + "..")
+
+					if err != nil {
+						formattedErrorExit("detected git directory, tried moving to parent but failed: %s", err)
+					}
+
+					fmt.Printf("detected git directory, setting working directory to parent: %s\n", workingDir)
+
+				}
 				allDirs, err := ioutil.ReadDir(workingDir)
 
 				if err != nil {
@@ -264,9 +276,9 @@ func init() {
 		},
 	}
 
-	uselocalCmd.Flags().BoolP("current", "c", false, "only alter the current repository, must be in a git repository folder")
-	uselocalCmd.Flags().BoolP("undo", "u", false, "alter go.mod files to not use local repositories, may be combined with -h")
-	uselocalCmd.Flags().StringArrayP("repos", "r", []string{`github\.com/openziti/.*`}, "alter specific replace directives by repository URL regexp, may be specified multiple times")
+	useLocalCmd.Flags().BoolP("current", "c", false, "only alter the current repository, must be in a git repository folder")
+	useLocalCmd.Flags().BoolP("undo", "u", false, "alter go.mod files to not use local repositories, may be combined with -h")
+	useLocalCmd.Flags().StringArrayP("repos", "r", []string{`github\.com/openziti/.*`}, "alter specific replace directives by repository URL regexp, may be specified multiple times")
 
 	checkoutCmd := &cobra.Command{
 		Use:     "checkout",
@@ -350,7 +362,7 @@ func init() {
 	rootCmd.AddCommand(branchCmd)
 	rootCmd.AddCommand(clone)
 	rootCmd.AddCommand(unregisterTagCmd)
-	rootCmd.AddCommand(uselocalCmd)
+	rootCmd.AddCommand(useLocalCmd)
 	rootCmd.AddCommand(checkoutCmd)
 }
 
