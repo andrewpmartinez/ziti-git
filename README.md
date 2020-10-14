@@ -162,20 +162,26 @@ A tabular Git status can be displayed by using the `table-status` or
 +------------+--------------+----------+--------+----------+-------------------------------------------+
 ```
 
-## Fetching On All Repositories
+## Fetching On All Repositories / Arbitrary Git Commands
 
 Arbitrary `git` command can be executed on the entire set of
 repositories or sets defined by tags. In this example `git fetch` will
 be executed on all repositories.
 
 ```
-> ziti-git fetch
+> ziti-git exec fetch
+```
+
+Or the shorter command:
+
+```
+> zg e fetch
 ```
 
 Or on a specific tag:
 
 ```
-> ziti-git -t myTag fetch
+> ziti-git e -t myTag fetch
 ```
 
 This can also be used to create branches, checkout branches, hard reset,
@@ -282,7 +288,7 @@ you can do the following:
 > ziti-git clone -r -t v0.16.0
 > cd ziti
 > git checkout v0.16.0
-> ziti-git checkout
+> ziti-git exec checkout
 ```
 
 Would output:
