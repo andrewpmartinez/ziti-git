@@ -41,6 +41,7 @@ necessary for repetitive tasks.
 Here is a list of some of the aliases:
 
 ```
+  e  = exec
   b  = branch 
   c  = clone
   l  = list
