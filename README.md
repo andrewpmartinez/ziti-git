@@ -38,9 +38,10 @@ necessary for repetitive tasks.
 > zg ts
 ```
 
-Here is a list of some of the aliases:
+Here is a list of some aliases:
 
 ```
+  e  = exec
   b  = branch 
   c  = clone
   l  = list
@@ -49,6 +50,7 @@ Here is a list of some of the aliases:
   u  = unregister
   ut = unregister-tag
   ul = use-local
+  ur = use-remote
 ```
 
 Aliases can be found by use the `-h` flag on commands in the "Aliases"
@@ -78,13 +80,13 @@ Global Flags:
 Ziti Git is a multi-repo git tool with additions for the open ziti project!
 
 Usage:
-  ziti-git [flags]
   ziti-git [command]
 
 Available Commands:
   branch         list all repo branches or repos in <tag>
   checkout       inspects the go.mod file of the openziti/ziti repo to produce a script to checkout exact openziti dependencies necessary
   clone          clones the core openziti repos to the current directory
+  exec           execute git commands across all repositories or specific <tag> repositories
   help           Help about any command
   list           list all repos or repos for <tag>
   register       add the repo in <path> to the list of repos, with an optional <tag>
@@ -92,6 +94,7 @@ Available Commands:
   unregister     unregister <repo>
   unregister-tag unregister-tag <tag>
   use-local      alter go.mod files for ziti repos to use local repositories via replace directives
+  use-remote     short cut for use-local -u
 
 Flags:
   -h, --help         help for ziti-git
@@ -160,20 +163,26 @@ A tabular Git status can be displayed by using the `table-status` or
 +------------+--------------+----------+--------+----------+-------------------------------------------+
 ```
 
-## Fetching On All Repositories
+## Fetching On All Repositories / Arbitrary Git Commands
 
 Arbitrary `git` command can be executed on the entire set of
 repositories or sets defined by tags. In this example `git fetch` will
 be executed on all repositories.
 
 ```
-> ziti-git fetch
+> ziti-git exec fetch
+```
+
+Or the shorter command:
+
+```
+> zg e fetch
 ```
 
 Or on a specific tag:
 
 ```
-> ziti-git -t myTag fetch
+> ziti-git e -t myTag fetch
 ```
 
 This can also be used to create branches, checkout branches, hard reset,
@@ -225,17 +234,17 @@ To reverse this process use:
 > ziti-git use-local --undo
 ```
 
-To limit the scope of `use-local` the `--current` flag can be used within a
-specific repository folder to alter only the `go.mod` folder of that
-repository.
+To limit the scope of `use-local` the `--current` flag can be used
+within a specific repository folder to alter only the `go.mod` folder of
+that repository.
 
 ```
 > cd edge
 > ziti-git use-local --current
 ```
 
-`--current` can also be combined with `--undo` to limit the undo to only the
-current repository.
+`--current` can also be combined with `--undo` to limit the undo to only
+the current repository.
 
 ```
 > cd edge
@@ -259,6 +268,12 @@ applied on top of any regular expression escaping necessary.
 The `--repo` flag can also be combined with `--current` and `--undo`. It
 may also be specified multiple times.
 
+## Using Remote -- Undoing Use Local
+
+The command `ziti-git use-remote` can be used as a shortcut to using
+`ziti-git use-local -u`. Both work exactly the same - the only
+difference is that `use-remote` does not have a `-u` flag.
+
 ### Checking Out Exact Matching Versions
 
 When debugging issues or recreating historical versions, it is useful to
@@ -274,7 +289,7 @@ you can do the following:
 > ziti-git clone -r -t v0.16.0
 > cd ziti
 > git checkout v0.16.0
-> ziti-git checkout
+> ziti-git exec checkout
 ```
 
 Would output:
