@@ -38,7 +38,7 @@ necessary for repetitive tasks.
 > zg ts
 ```
 
-Here is a list of some of the aliases:
+Here is a list of some aliases:
 
 ```
   e  = exec
