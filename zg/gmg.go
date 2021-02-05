@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -50,6 +51,9 @@ func createConfigFile() {
 
 // Deserialize the repos from the config file into structs
 func GetRepos() []Repo {
+
+	_ = os.MkdirAll(ConfigFile, os.ModePerm)
+
 	if _, err := os.Stat(ConfigFile); os.IsNotExist(err) {
 		// config file does not exits
 		createConfigFile()
@@ -186,7 +190,7 @@ func getMiddleEllipsesString(orig string, max int) string {
 	return orig
 }
 
-func TableStatus(repos []Repo, tag string) {
+func TableStatus(repos []Repo, tag string, out io.Writer) {
 	var statusData [][]string
 
 	var errorData [][]string
@@ -232,7 +236,7 @@ func TableStatus(repos []Repo, tag string) {
 		}
 	}
 
-	statusTable := tablewriter.NewWriter(os.Stdout)
+	statusTable := tablewriter.NewWriter(out)
 	statusTable.SetHeader([]string{"Name", "Branch", "Tag", "Staged", "Unstaged", "Location"})
 	statusTable.SetColumnAlignment([]int{tablewriter.ALIGN_DEFAULT, tablewriter.ALIGN_DEFAULT, tablewriter.ALIGN_DEFAULT, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_CENTER, tablewriter.ALIGN_DEFAULT})
 	statusTable.SetColumnColor(tablewriter.Colors{}, tablewriter.Colors{}, tablewriter.Colors{}, tablewriter.Colors{tablewriter.FgHiGreenColor}, tablewriter.Colors{tablewriter.FgHiRedColor}, tablewriter.Colors{})

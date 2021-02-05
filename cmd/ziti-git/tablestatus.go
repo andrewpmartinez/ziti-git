@@ -5,7 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewTableStatusCmd(ctx *Ctx) *cobra.Command{
+func NewTableStatusCmd(ctx *Ctx) *cobra.Command {
 	tableStatusCmd := &cobra.Command{
 		Use:     "table-status [-t <tag>]",
 		Aliases: []string{"ts"},
@@ -14,7 +14,7 @@ func NewTableStatusCmd(ctx *Ctx) *cobra.Command{
 		Run: func(cmd *cobra.Command, args []string) {
 			checkRepos(ctx.Repos)
 			tag := rootCmd.Flag(FlagTag).Value.String()
-			zg.TableStatus(ctx.Repos, tag)
+			zg.TableStatus(ctx.Repos, tag, ctx.Output)
 		},
 	}
 	tableStatusCmd.Flags().StringP(FlagTag, "t", "", "limits actions to repos with <tag>")

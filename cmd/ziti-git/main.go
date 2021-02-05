@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/andrewpmartinez/ziti-git/zg"
+	"github.com/mattn/go-colorable"
 	"github.com/spf13/cobra"
+	"io"
 	"os"
 )
 
@@ -36,12 +38,13 @@ var ZitiModules = map[string]string{
 }
 
 type Ctx struct {
-	Repos []zg.Repo
+	Repos  []zg.Repo
+	Output io.Writer
 }
 
 func init() {
 	zg.SetConfigFilePath()
-	ctx := &Ctx{Repos: zg.GetRepos()}
+	ctx := &Ctx{Repos: zg.GetRepos(), Output: colorable.NewColorableStdout()}
 
 	rootCmd = &cobra.Command{
 		Use:   "ziti-git",

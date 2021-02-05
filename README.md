@@ -16,8 +16,22 @@ go install github.com/andrewpmartinez/ziti-git
 
 ## Alias to `zg`
 
+For Linux
+
 ```
 echo 'alias zg=$GOPATH/bin/ziti-git' >> ~/.bashrc
+```
+
+For Windows CMD:
+
+```
+doskey zg=ziti-git $*
+```
+
+For Powershell, add to the end of your $PROFILE:
+
+```
+Set-Alias zg ziti-git
 ```
 
 ## Aliases
@@ -289,7 +303,7 @@ you can do the following:
 > ziti-git clone -r -t v0.16.0
 > cd ziti
 > git checkout v0.16.0
-> ziti-git exec checkout
+> ziti-git checkout
 ```
 
 Would output:
