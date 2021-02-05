@@ -10,7 +10,7 @@ import (
 func NewExecuteCmd(ctx *Ctx) *cobra.Command {
 	executeCmd := &cobra.Command{
 		Use:                   "exec [-t <tag>] <git commands/args>",
-		Aliases:               []string{"e"},
+		Aliases:               []string{"e", "g", "git"},
 		Short:                 "execute git commands across all repositories or specific <tag> repositories",
 		Args:                  cobra.MinimumNArgs(1),
 		DisableFlagParsing:    true,
