@@ -20,5 +20,5 @@ jobs:
           goarch: ${{ matrix.goarch }}
           goversion: 1.14
           project_path: "./cmd/ziti-git"
-          binary_name: "ziti-get"
+          binary_name: "ziti-git"
           extra_files: LICENSE README.md
