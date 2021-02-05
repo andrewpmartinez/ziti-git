@@ -19,7 +19,8 @@ import (
 )
 
 // Location of the config file under the $HOME dir
-var ConfigFile = "/.config/zg-repos.json"
+var ConfigFile = "/zg-repos.json"
+var ConfigDir = "/.config"
 
 // Repo struct
 type Repo struct {
@@ -39,7 +40,8 @@ func check(err error, message string) {
 func SetConfigFilePath() {
 	usr, err := user.Current()
 	check(err, "Error getting the current user")
-	ConfigFile = usr.HomeDir + ConfigFile
+	ConfigDir = usr.HomeDir + ConfigDir
+	ConfigFile = ConfigDir + ConfigFile
 }
 
 // Create the config file with empty repo list
@@ -52,7 +54,7 @@ func createConfigFile() {
 // Deserialize the repos from the config file into structs
 func GetRepos() []Repo {
 
-	_ = os.MkdirAll(ConfigFile, os.ModePerm)
+	_ = os.MkdirAll(ConfigDir, os.ModePerm)
 
 	if _, err := os.Stat(ConfigFile); os.IsNotExist(err) {
 		// config file does not exits
