@@ -141,6 +141,7 @@ func RunCommand(repos []Repo, tag string, args ...string) error {
 				cmd = exec.Command(args[0])
 			}
 
+			cmd.Dir = r.Location
 
 			var out bytes.Buffer
 			var stderr bytes.Buffer
