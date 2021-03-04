@@ -7,11 +7,11 @@ import (
 	"strings"
 )
 
-func NewExecuteCommand(ctx *Ctx) *cobra.Command {
+func NewGitCommand(ctx *Ctx) *cobra.Command {
 	executeCmd := &cobra.Command{
-		Use:                   "execute [-t <tag>] <commands>",
-		Aliases:               []string{"e"},
-		Short:                 "execute commands across all repositories or specific <tag> repositories",
+		Use:                   "git [-t <tag>] <git commands/args>",
+		Aliases:               []string{"g"},
+		Short:                 "execute git commands across all repositories or specific <tag> repositories",
 		Args:                  cobra.MinimumNArgs(1),
 		DisableFlagParsing:    true,
 		DisableFlagsInUseLine: true,
@@ -62,14 +62,12 @@ func NewExecuteCommand(ctx *Ctx) *cobra.Command {
 			}
 
 			if len(passArgs) == 0 {
-				cmd.PrintErr("Error: no commands provided\n")
+				cmd.PrintErr("Error: no git commands/arguments provided\n")
 				_ = cmd.Help()
 				return
 			}
 
-			if err := zg.RunCommand(ctx.Repos, tag, passArgs...); err != nil {
-				cmd.PrintErr("Error: Could not run command: %v", err)
-			}
+			zg.RunGitCommand(ctx.Repos, tag, passArgs...)
 		},
 		FParseErrWhitelist: cobra.FParseErrWhitelist{
 			UnknownFlags: true,
