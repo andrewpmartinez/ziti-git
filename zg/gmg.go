@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/olekukonko/tablewriter"
+	"github.com/google/shlex"
 	"io"
 	"io/ioutil"
 	"log"
@@ -95,18 +96,14 @@ func Exec(binary string, params ...string) (*bytes.Buffer, *bytes.Buffer, error)
 }
 
 // Run a git command across all repos with matching tag
-func RunCmd(repos []Repo, tag string, args ...string) {
+func RunGitCommand(repos []Repo, tag string, args ...string) {
 	for _, r := range repos {
 		if tag == "" || (tag != "" && r.Tag != "" && tag == r.Tag) {
 			var cmd *exec.Cmd
 
-			if args[0] == "-exec" {
-				cmd = exec.Command(args[1], args[2:]...)
-			} else {
-				params := []string{"-C", r.Location}
-				params = append(params, args...)
-				cmd = exec.Command("git", params...)
-			}
+			params := []string{"-C", r.Location}
+			params = append(params, args...)
+			cmd = exec.Command("git", params...)
 
 			var out bytes.Buffer
 			var stderr bytes.Buffer
@@ -123,6 +120,53 @@ func RunCmd(repos []Repo, tag string, args ...string) {
 			fmt.Printf("%s\n", out.String())
 		}
 	}
+}
+
+func RunCommand(repos []Repo, tag string, args ...string) error {
+	for _, r := range repos {
+		if tag == "" || (tag != "" && r.Tag != "" && tag == r.Tag) {
+			var cmd *exec.Cmd
+
+			if len(args) == 1 {
+				var err error
+				args, err = shlex.Split(args[0])
+				if err != nil{
+					return err
+				}
+			}
+			if len(args) > 1 {
+				cmd = exec.Command(args[0], args[1:]...)
+			} else {
+
+				cmd = exec.Command(args[0])
+			}
+
+			cmd.Dir = r.Location
+
+			var out bytes.Buffer
+			var stderr bytes.Buffer
+			cmd.Stdout = &out
+			cmd.Stderr = &stderr
+
+			color.Cyan(r.Name)
+			err := cmd.Run()
+
+			hasOutput := false
+			if err != nil {
+				hasOutput =  true
+				_,_ = fmt.Fprint(os.Stderr, stderr.String())
+			}
+
+			outStdString := out.String()
+
+			if outStdString == "" && !hasOutput {
+				outStdString = "(no output)"
+			}
+			fmt.Printf("%s\n", outStdString)
+		}
+	}
+
+	return nil
 }
 
 // Add a new repo to the list

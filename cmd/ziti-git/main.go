@@ -54,7 +54,8 @@ func init() {
 	rootCmd.Flags().StringP(FlagTag, "t", "", "limits actions to repos with <tag>")
 
 	subCmds := []*cobra.Command{
-		NewExecuteCmd(ctx),
+		NewGitCommand(ctx),
+		NewExecuteCommand(ctx),
 		NewRegisterCmd(ctx),
 		NewTableStatusCmd(ctx),
 		NewUnregisterCmd(ctx),
