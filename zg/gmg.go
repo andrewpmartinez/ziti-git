@@ -151,11 +151,18 @@ func RunCommand(repos []Repo, tag string, args ...string) error {
 			color.Cyan(r.Name)
 			err := cmd.Run()
 
+			hasOutput := false
 			if err != nil {
-				fmt.Println(stderr.String())
+				hasOutput =  true
+				_,_ = fmt.Fprint(os.Stderr, stderr.String())
 			}
 
-			fmt.Printf("%s\n", out.String())
+			outStdString := out.String()
+
+			if outStdString == "" && !hasOutput {
+				outStdString = "(no output)"
+			}
+			fmt.Printf("%s\n", outStdString)
 		}
 	}
 
