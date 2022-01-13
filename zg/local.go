@@ -1,9 +1,12 @@
 package zg
 
 import (
+	"bytes"
 	"fmt"
+	"github.com/fatih/color"
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 )
@@ -23,6 +26,31 @@ func IsPathGitRepo(path string) bool {
 	}
 
 	return false
+}
+
+func GoModTidy(repoDir string) {
+	cmd := exec.Command("go", "mod", "tidy")
+	cmd.Dir = repoDir
+
+	var out bytes.Buffer
+	var stderr bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &stderr
+
+	color.Cyan(repoDir)
+	err := cmd.Run()
+
+	hasOutput := false
+	if err != nil {
+		hasOutput = true
+		_, _ = fmt.Fprint(os.Stderr, stderr.String())
+	}
+
+	outStdString := out.String()
+
+	if !hasOutput && outStdString != "" {
+		fmt.Printf("%s\n", outStdString)
+	}
 }
 
 func DisableGoModReplaceDirectives(repoDir string, reposToReplace []string) error {

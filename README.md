@@ -55,9 +55,10 @@ necessary for repetitive tasks.
 Here is a list of some aliases:
 
 ```
-  e  = exec
+  e  = execute
   b  = branch 
   c  = clone
+  g  = git
   l  = list
   r  = register
   ts = table-status
@@ -100,7 +101,8 @@ Available Commands:
   branch         list all repo branches or repos in <tag>
   checkout       inspects the go.mod file of the openziti/ziti repo to produce a script to checkout exact openziti dependencies necessary
   clone          clones the core openziti repos to the current directory
-  exec           execute git commands across all repositories or specific <tag> repositories
+  execute        execute commands across all repositories or specific <tag> repositories
+  git            execute git commands across all repositories or specific <tag> repositories
   help           Help about any command
   list           list all repos or repos for <tag>
   register       add the repo in <path> to the list of repos, with an optional <tag>
@@ -184,19 +186,19 @@ repositories or sets defined by tags. In this example `git fetch` will
 be executed on all repositories.
 
 ```
-> ziti-git exec fetch
+> ziti-git git fetch
 ```
 
 Or the shorter command:
 
 ```
-> zg e fetch
+> zg g fetch
 ```
 
 Or on a specific tag:
 
 ```
-> ziti-git e -t myTag fetch
+> ziti-git g -t myTag fetch
 ```
 
 This can also be used to create branches, checkout branches, hard reset,
@@ -224,7 +226,8 @@ By default, building against the `openziti/ziti` repository folder
 build. If you would like to use only the locally checked out versions
 (useful for developing locally) the `ziti-git use-local` command is
 useful to update the `go.mod` file to add `replace` directives to use
-your locally checked out versions.
+your locally checked out versions. `go mod tidy` will be automatically
+run unless the `--no-tidy` or `-n` is specified
 
 The command makes the following assumptions:
 
@@ -286,7 +289,8 @@ may also be specified multiple times.
 
 The command `ziti-git use-remote` can be used as a shortcut to using
 `ziti-git use-local -u`. Both work exactly the same - the only
-difference is that `use-remote` does not have a `-u` flag.
+difference is that `use-remote` does not have a `-u` flag. `go mod tidy` 
+will be automatically run unless the `--no-tidy` or `-n` is specified
 
 ### Checking Out Exact Matching Versions
 

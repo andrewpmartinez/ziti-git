@@ -20,22 +20,24 @@ func NewUseLocalCmd(_ *Ctx) *cobra.Command {
 			workOnCurrent, _ := cmd.Flags().GetBool("current")
 			undo, _ := cmd.Flags().GetBool("undo")
 			reposToReplace, _ := cmd.Flags().GetStringArray("repos")
+			noTidy, _ := cmd.Flags().GetBool("no-tidy")
 
 			workingDir, _ := os.Getwd()
 			var repoDirs []string
 
-			alterGoMods(workOnCurrent, undo, reposToReplace, workingDir, repoDirs)
+			alterGoMods(workOnCurrent, undo, reposToReplace, workingDir, repoDirs, noTidy)
 		},
 	}
 
 	useLocalCmd.Flags().BoolP("current", "c", false, "only alter the current repository, must be in a git repository folder")
 	useLocalCmd.Flags().BoolP("undo", "u", false, "alter go.mod files to not use local repositories, may be combined with -h")
 	useLocalCmd.Flags().StringArrayP("repos", "r", []string{`github\.com/openziti/.*`}, "alter specific replace directives by repository URL regexp, may be specified multiple times")
+	useLocalCmd.Flags().BoolP("no-tidy", "n", false, "if specified, go.mod altering commands will not run go mod tidy")
 
 	return useLocalCmd
 }
 
-func alterGoMods(workOnCurrent bool, undo bool, reposToReplace []string, workingDir string, repoDirs []string) {
+func alterGoMods(workOnCurrent bool, undo bool, reposToReplace []string, workingDir string, repoDirs []string, noTidy bool) {
 	//fill repoDirs with directories to work on
 	if workOnCurrent {
 		if !zg.IsPathGitRepo(workingDir) {
@@ -84,10 +86,21 @@ func alterGoMods(workOnCurrent bool, undo bool, reposToReplace []string, working
 				if err := zg.DisableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
 					formattedErrorExit("Could not disable go mod replacements in [%s]: %v", repoDir, err)
 				}
+
+				if !noTidy {
+					fmt.Printf("- tidying: %s\n", repoDir)
+					zg.GoModTidy(repoDir)
+				}
+
 			} else {
 				fmt.Printf("enabling replacements on: %s\n", repoDir)
 				if err := zg.EnableGoModReplaceDirectives(repoDir, reposToReplace); err != nil {
 					formattedErrorExit("Could not enable go mod replacements in [%s]: %v", repoDir, err)
+				}
+
+				if !noTidy {
+					fmt.Printf("- tidying: %s\n", repoDir)
+					zg.GoModTidy(repoDir)
 				}
 			}
 		}
