@@ -11,6 +11,18 @@ import (
 	"regexp"
 )
 
+// knownRepos is a list of shortcuts for use-local and use-remote
+// so that full regular expressions don't always have to be used
+// when altering go.mod files. RegularExpressions are still the
+// input to deal with any repo that may be part of the project
+var knownRepos = map[string]string{
+	"edge":       "github.com/openziti/edge.*",
+	"fabric":     "github.com/openziti/fabric.*",
+	"foundation": "github.com/openziti/foundation.*",
+	"sdk-golang": "github.com/openziti/sdk-golang.*",
+	"sdk":        "github.com/openziti/sdk-golang.*",
+}
+
 func IsPathGitRepo(path string) bool {
 	dirInfo, _ := os.Stat(path)
 	if dirInfo == nil || !dirInfo.IsDir() {
@@ -64,6 +76,11 @@ func DisableGoModReplaceDirectives(repoDir string, reposToReplace []string) erro
 	// compile expressions
 	var replaceExpressions []*regexp.Regexp
 	for _, repoToReplace := range reposToReplace {
+		// look for shortcuts
+		if newExpression, ok := knownRepos[repoToReplace]; ok {
+			repoToReplace = newExpression
+		}
+
 		// test repo expression
 		_, err := regexp.Compile(repoToReplace)
 		if err != nil {
@@ -103,6 +120,11 @@ func EnableGoModReplaceDirectives(repoDir string, reposToReplace []string) error
 	// compile expressions
 	var replaceExpressions []*regexp.Regexp
 	for _, repoToReplace := range reposToReplace {
+		//look for shortcuts
+		if newExpression, ok := knownRepos[repoToReplace]; ok {
+			repoToReplace = newExpression
+		}
+
 		// test repo expression
 		_, err := regexp.Compile(repoToReplace)
 		if err != nil {
