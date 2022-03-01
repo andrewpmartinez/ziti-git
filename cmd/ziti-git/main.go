@@ -23,11 +23,16 @@ const (
 )
 
 var ZitiRepos = map[string]string{
-	"edge":       "git@github.com:openziti/edge.git",
-	"fabric":     "git@github.com:openziti/fabric.git",
-	"foundation": "git@github.com:openziti/foundation.git",
-	"ziti":       "git@github.com:openziti/ziti.git",
-	"sdk-golang": "git@github.com:openziti/sdk-golang.git",
+	"edge":         "git@github.com:openziti/edge.git",
+	"fabric":       "git@github.com:openziti/fabric.git",
+	"foundation":   "git@github.com:openziti/foundation.git",
+	"ziti":         "git@github.com:openziti/ziti.git",
+	"sdk-golang":   "git@github.com:openziti/sdk-golang.git",
+	"sdk-js":       "git@github.com:openziti/ziti-sdk-js.git",
+	"sdk-jvm":      "git@github.com:openziti/ziti-sdk-jvm.git",
+	"doc":          "git@github.com:openziti/openziti.github.io.git",
+	"tunnel-sdk-c": "git@github.com:openziti/ziti-tunnel-sdk-c.git",
+	"channel":      "git@github.com:openziti/channel.git",
 }
 
 var ZitiModules = map[string]string{
@@ -35,6 +40,7 @@ var ZitiModules = map[string]string{
 	"github.com/openziti/fabric":     "fabric",
 	"github.com/openziti/foundation": "foundation",
 	"github.com/openziti/sdk-golang": "sdk-golang",
+	"github.com/openziti/channel":    "channel",
 }
 
 type Ctx struct {
