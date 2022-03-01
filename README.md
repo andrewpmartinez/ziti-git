@@ -285,12 +285,38 @@ applied on top of any regular expression escaping necessary.
 The `--repo` flag can also be combined with `--current` and `--undo`. It
 may also be specified multiple times.
 
+
 ## Using Remote -- Undoing Use Local
 
 The command `ziti-git use-remote` can be used as a shortcut to using
 `ziti-git use-local -u`. Both work exactly the same - the only
 difference is that `use-remote` does not have a `-u` flag. `go mod tidy` 
-will be automatically run unless the `--no-tidy` or `-n` is specified
+will be automatically run unless the `--no-tidy` or `-n` is specified.
+
+## Shortcut Repository Names
+
+For Ziti specific repos, there are a number of shortcuts so that the full
+regular expression does not have to be used for `--use-local` and `--use-remote`.
+
+For example instead of this command:
+
+```
+> ziti-git use-local --repo .*?edge.*?
+```
+
+The `edge` shortcut can e used instead
+
+```
+> ziti-git use-local --repo edge
+```
+
+Here is a full list of the shortcuts defined:
+
+- `edge`
+- `fabric`
+- `foundation`
+- `sdk-golang`
+- `channel`
 
 ### Checking Out Exact Matching Versions
 
