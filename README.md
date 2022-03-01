@@ -296,7 +296,7 @@ will be automatically run unless the `--no-tidy` or `-n` is specified.
 ## Shortcut Repository Names
 
 For Ziti specific repos, there are a number of shortcuts so that the full
-regular expression does not have to be used for `--use-local` and `--use-remote`.
+regular expression does not have to be used for `use-local` and `use-remote`.
 
 For example instead of this command:
 
