@@ -5,13 +5,49 @@ the github.com/openziti project
 
 ## Requirements
 
-- git >= 1.14
+- git >= 1.17
 
 ## Installation
 
+### As library
+
+`ziti-git` is developed as a library first and a tool second. If you wish to use `ziti-git`'s capabilities in your own
+tooling simply add it as a dependency via `go get`
+
 ```
 go get -u github.com/andrewpmartinez/ziti-git
-go install github.com/andrewpmartinez/ziti-git
+```
+
+### Build From Source Yourself
+
+`ziti-git` has a builtin command/binary/executable called `ziti-git` that can be installed directly from your CLI as 
+long as you  have golang installed. There are a few different flavors of installation you can choose. Below are examples
+of installing `ziti-git` with go 1.17.
+
+Install all commands:
+
+`go install github.com/andrewpmartinez/ziti-git/...@latest`
+
+Install command in the `cmd` dir:
+
+`go install github.com/andrewpmartinez/ziti-git/cmd/...@latest`
+
+Install only the `ziti-git` command:
+
+`go install github.com/andrewpmartinez/ziti-git/cmd/ziti-git@latest`
+
+As of now they are all equivalent as there is only one command in the project. Earlier versions of go may require
+different syntax or commands.
+
+### Checkout & Build
+
+Alternatively if you want a local copy of the source code and build it you can checkout the repo and issue a build
+command from within the repository folder:
+
+```
+git clone ...
+cd ziti-git
+go install ./...
 ```
 
 ## Alias to `zg`
